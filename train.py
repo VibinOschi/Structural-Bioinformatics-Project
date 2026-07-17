@@ -17,4 +17,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     dataset = FeatureDataset(
-        source_dataframe=preprocess_data_files_from_path(config['dataset_path'], config['feature_columns']))
+        source_dataframe=preprocess_data_files_from_path(config['dataset_path'], config['feature_columns']),
+        feature_columns=config['feature_columns'],
+        label_column=config['label_column']
+    )
