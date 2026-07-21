@@ -1,9 +1,14 @@
-import numpy as np
 import torch
 import json
 
+from torch.utils.data import DataLoader
+
 from src.FeatureDataset import FeatureDataset
+from src.Predictor import Predictor
 from src.utils.input_preprocessing import preprocess_data_files_from_path
+from src.utils.dataset_utils import stratified_split
+from src.utils.training_utils import train_model
+from src.utils.validation_utils import evaluate_model
 
 
 def get_config():
@@ -20,4 +25,34 @@ if __name__ == "__main__":
         source_dataframe=preprocess_data_files_from_path(config['dataset_path'], config['feature_columns']),
         feature_columns=config['feature_columns'],
         label_column=config['label_column']
+    )
+
+    train_dataset, val_dataset = stratified_split(dataset, config['validation_split'], seed=config['rand_seed'])
+
+    train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=config['batch_size'], shuffle=False)
+
+    # TODO: weight decay is missing
+    model = Predictor(dropout=config['dropout'])
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['epochs'])
+
+    model, train_history = train_model(
+        model=model,
+        training_dataloader=train_dataloader,
+        validation_dataloader=val_dataloader,
+        criterion=criterion,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        epochs=config['number_of_epochs'],
+        patience=config['early_stopping_patience'],
+        device=device
+    )
+
+    evaluate_model(
+        model=model,
+        validation_dataloader=val_dataloader,
+        training_history=train_history,
+        device=device
     )
