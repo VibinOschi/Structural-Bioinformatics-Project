@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
 
 class FeatureDataset(Dataset):
-    def __init__(self, source_dataframe, feature_columns, label_column):
+    def __init__(self, source_dataframe, feature_columns, label_column, label_encoder):
         # Features are maintained numerical if they already are, or they are categorically encoded otherwise
         self.encoders = {}
         feature_arrays = []
@@ -24,8 +24,7 @@ class FeatureDataset(Dataset):
         self.features = torch.tensor(pd.DataFrame(dict(zip(feature_columns, feature_arrays))).values, dtype=torch.float32)
 
         # Labels from 'Text Category' to 'Encoded Category'
-        self.label_encoder = LabelEncoder()
-        encoded_labels = self.label_encoder.fit_transform(source_dataframe[label_column].astype(str))
+        encoded_labels = label_encoder.fit_transform(source_dataframe[label_column].astype(str))
         self.labels = torch.tensor(encoded_labels, dtype=torch.long)
 
     def __len__(self):

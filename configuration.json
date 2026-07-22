@@ -6,10 +6,11 @@
 
   "rand_seed": 42,
   "validation_split": 0.2,
-  "batch_size": "128",
+  "batch_size": 128,
 
   "dropout": 0.3,
   "learning_rate": 1e-3,
+  "weight_decay": 1e-4,
 
   "number_of_epochs": 30,
   "early_stopping_patience": 5

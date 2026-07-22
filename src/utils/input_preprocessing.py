@@ -1,6 +1,14 @@
 import pandas as pd
 import os
 
+from sklearn.preprocessing import LabelEncoder
+
+
+def get_label_encoder_from_dataframe(label_column):
+    label_encoder = LabelEncoder()
+    label_encoder.fit(label_column)
+    return label_encoder
+
 def preprocess_data_files_from_path(path, feature_columns):
     df = combine_multiple_tsv_into_dataframe(path)
     df = drop_lines_with_empty_values(df, feature_columns)

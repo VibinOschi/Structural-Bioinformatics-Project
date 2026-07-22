@@ -4,7 +4,7 @@ import seaborn as sns
 
 from sklearn.metrics import classification_report, confusion_matrix
 
-def evaluate_model(model, validation_dataloader, training_history, device):
+def evaluate_model(model, validation_dataloader, training_history, label_encoder, device):
     model.eval()
     all_predicted, all_targets = [], []
 
@@ -19,8 +19,7 @@ def evaluate_model(model, validation_dataloader, training_history, device):
     all_predicted = torch.cat(all_predicted).cpu().numpy()
     all_targets = torch.cat(all_targets).cpu().numpy()
 
-    # TODO: fix this issue on the Label Encoder (it's generally broken in all of the code)
-    class_names = list(le.classes_)
+    class_names = list(label_encoder.classes_)
 
     print("Classification Report")
     print("=" * 60)
