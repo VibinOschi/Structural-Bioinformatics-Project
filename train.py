@@ -21,7 +21,7 @@ if __name__ == "__main__":
     config = get_config()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    source_df = preprocess_data_files_from_path(config['dataset_path'], config['feature_columns'])
+    source_df = preprocess_data_files_from_path(config['dataset_path'], config['feature_columns'], augment_duplicate=True)
     le = get_label_encoder_from_dataframe(source_df[config['label_column']])
     dataset = FeatureDataset(
         source_dataframe=source_df,
