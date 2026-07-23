@@ -1,5 +1,8 @@
 import torch
 
+from pathlib import Path
+
+
 def train_model(model, training_dataloader, validation_dataloader, criterion, optimizer, scheduler, epochs, patience, device):
     training_history = {'train_loss': [], 'val_loss': [], 'train_acc': [], 'val_acc': []}
 
@@ -78,3 +81,21 @@ def train_model(model, training_dataloader, validation_dataloader, criterion, op
     model.load_state_dict(best_model_state)
 
     return model, training_history
+
+
+def save_model_in_directory(model, directory, name_of_the_model_file="predictor_weights.pth"):
+    directory_path = Path(directory)
+    directory_path.mkdir(parents=True, exist_ok=True)
+
+    model_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+
+    torch.save(model_state, directory_path / name_of_the_model_file)
+
+# Note: the following code is how you load the model that was saved by the previous function
+#
+#   model = Predictor(args)
+#   state_dict = torch.load("model/predictor_weights.pt", map_location=device)
+#   model.load_state_dict(state_dict)
+#   model.to(device)
+# Additionally, for inference:
+#   model.eval()
