@@ -16,11 +16,11 @@ def train_model(model, training_dataloader, validation_dataloader, criterion, op
         model.train()
         train_loss, train_correct, train_total = 0.0, 0, 0
 
-        for samples_batch, labels_batch in training_dataloader:
-            samples_batch, labels_batch = samples_batch.to(device), labels_batch.to(device)
+        for samples_batch_s, samples_batch_t, labels_batch in training_dataloader:
+            samples_batch_s, samples_batch_t, labels_batch = samples_batch_s.to(device), samples_batch_t.to(device), labels_batch.to(device)
 
             optimizer.zero_grad()
-            outputs = model(samples_batch)
+            outputs = model(samples_batch_s, samples_batch_t)
             loss = criterion(outputs, labels_batch)
             loss.backward()
             optimizer.step()
@@ -38,10 +38,10 @@ def train_model(model, training_dataloader, validation_dataloader, criterion, op
         val_loss, val_correct, val_total = 0.0, 0, 0
 
         with torch.no_grad():
-            for samples_batch, labels_batch in validation_dataloader:
-                samples_batch, labels_batch = samples_batch.to(device), labels_batch.to(device)
+            for samples_batch_s, samples_batch_t, labels_batch in validation_dataloader:
+                samples_batch_s, samples_batch_t, labels_batch = samples_batch_s.to(device), samples_batch_t.to(device), labels_batch.to(device)
 
-                outputs = model(samples_batch)
+                outputs = model(samples_batch_s, samples_batch_t)
                 loss = criterion(outputs, labels_batch)
 
                 val_loss += loss.item() * len(labels_batch)

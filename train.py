@@ -21,7 +21,7 @@ if __name__ == "__main__":
     config = get_config()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    source_df = preprocess_data_files_from_path(config['dataset_path'], config['feature_columns'], augment_duplicate=True)
+    source_df = preprocess_data_files_from_path(config['dataset_path'], config['feature_columns'], augment_duplicate=False)
     le = get_label_encoder_from_dataframe(source_df[config['label_column']])
     dataset = FeatureDataset(
         source_dataframe=source_df,
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     class_weights = get_class_weights_from_dataframe(source_df, config['label_column'], le)
 
-    model = Predictor(dropout=config['dropout']).to(device)
+    model = Predictor(dropout=config['dropout'], shared_encoder=True).to(device)
     criterion = torch.nn.CrossEntropyLoss(weight=class_weights.to(device))
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['number_of_epochs'])
