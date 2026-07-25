@@ -9,9 +9,9 @@ def evaluate_model(model, validation_dataloader, training_history, label_encoder
     all_predicted, all_targets = [], []
 
     with torch.no_grad():
-        for samples_batch, labels_batch in validation_dataloader:
-            samples_batch, labels_batch = samples_batch.to(device), labels_batch.to(device)
-            outputs = model(samples_batch)
+        for samples_batch_s, samples_batch_t, labels_batch in validation_dataloader:
+            samples_batch_s, samples_batch_t, labels_batch = samples_batch_s.to(device), samples_batch_t.to(device), labels_batch.to(device)
+            outputs = model(samples_batch_s, samples_batch_t)
             predicted = outputs.argmax(dim=1)
             all_predicted.append(predicted)
             all_targets.append(labels_batch)
