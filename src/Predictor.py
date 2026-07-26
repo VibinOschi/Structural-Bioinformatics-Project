@@ -48,6 +48,7 @@ class Predictor(nn.Module):
             nn.LeakyReLU(),
             nn.Linear(32, 8)
         )
+
         self._initialize_weights()
 
     def forward(self, x_s, x_t):

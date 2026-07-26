@@ -3,6 +3,37 @@ import torch
 from pathlib import Path
 
 
+class FocalLoss(torch.nn.Module):
+    def __init__(self, gamma=2.0, alpha=None, reduction='mean'):
+        super().__init__()
+        self.gamma = gamma
+        self.reduction = reduction
+
+        self.register_buffer('alpha', alpha if alpha is not None else None, persistent=False)
+
+    def forward(self, logits, targets):
+        log_probs = torch.nn.functional.log_softmax(logits, dim=-1)
+        probs = log_probs.exp()
+
+        log_pt = log_probs.gather(1, targets.unsqueeze(1)).squeeze(1)
+        pt = probs.gather(1, targets.unsqueeze(1)).squeeze(1)
+
+        focal_term = (1 - pt) ** self.gamma
+        loss = -focal_term * log_pt
+
+        if self.alpha is not None:
+            alpha_t = self.alpha.gather(0, targets)
+            loss = alpha_t * loss
+
+        if self.reduction == "mean":
+            return loss.mean()
+        elif self.reduction == "sum":
+            return loss.sum()
+        return loss
+
+
+
+
 def train_model(model, training_dataloader, validation_dataloader, criterion, optimizer, scheduler, epochs, patience, device):
     training_history = {'train_loss': [], 'val_loss': [], 'train_acc': [], 'val_acc': []}
 

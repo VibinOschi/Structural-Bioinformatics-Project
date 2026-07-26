@@ -7,7 +7,7 @@ from src.FeatureDataset import FeatureDataset
 from src.Predictor import Predictor
 from src.utils.input_preprocessing import get_label_encoder_from_dataframe, preprocess_data_files_from_path
 from src.utils.dataset_utils import stratified_split, get_class_weights_from_dataframe
-from src.utils.training_utils import train_model, save_model_in_directory
+from src.utils.training_utils import FocalLoss, train_model, save_model_in_directory
 from src.utils.validation_utils import evaluate_model
 
 
@@ -38,7 +38,8 @@ if __name__ == "__main__":
     class_weights = get_class_weights_from_dataframe(source_df, config['label_column'], le)
 
     model = Predictor(dropout=config['dropout'], shared_encoder=True).to(device)
-    criterion = torch.nn.CrossEntropyLoss(weight=class_weights.to(device))
+    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights.to(device))
+    criterion = FocalLoss(gamma=config['focal_gamma'], alpha=class_weights.to(device))
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['number_of_epochs'])
 
