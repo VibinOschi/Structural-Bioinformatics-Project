@@ -14,19 +14,6 @@ def get_config():
     return configuration
 
 
-# Output: a tsv that return a table with the following information
-#
-# Source residue columns (chain, index, insertion code, name)
-# Target residue columns (chain, index, insertion code, name)
-# Feature columns (...)
-# Interaction (predictor result)
-# Score 
-if __name__ == '__main__':
-    config = get_config()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    pdb_extracted_features = get_extracted_features_from_directory_of_pdb(config)
-
 if __name__ == '__main__':
     config = get_config()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
