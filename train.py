@@ -56,7 +56,7 @@ if __name__ == "__main__":
         device=device
     )
 
-    save_model_in_directory(model, config['predictor_model_path'])
+    save_model_in_directory(model, config['predictor_model_path'], le, dataset.feature_encoders)
 
     evaluate_model(
         model=model,

@@ -1,4 +1,5 @@
 import torch
+import pickle
 
 from pathlib import Path
 
@@ -114,6 +115,7 @@ def train_model(model, training_dataloader, validation_dataloader, criterion, op
     return model, training_history
 
 
+'''
 def save_model_in_directory(model, directory, name_of_the_model_file="predictor_weights.pth"):
     directory_path = Path(directory)
     directory_path.mkdir(parents=True, exist_ok=True)
@@ -121,6 +123,26 @@ def save_model_in_directory(model, directory, name_of_the_model_file="predictor_
     model_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
 
     torch.save(model_state, directory_path / name_of_the_model_file)
+'''
+
+
+def save_model_in_directory(model, directory, label_encoder=None, feature_encoders=None,
+                             name_of_the_model_file="predictor_weights.pth",
+                             name_of_the_label_encoder_file="label_encoder.pkl",
+                             name_of_the_feature_encoders_file="feature_encoders.pkl"):
+    directory_path = Path(directory)
+    directory_path.mkdir(parents=True, exist_ok=True)
+
+    model_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+    torch.save(model_state, directory_path / name_of_the_model_file)
+
+    if label_encoder is not None:
+        with open(directory_path / name_of_the_label_encoder_file, "wb") as f:
+            pickle.dump(label_encoder, f)
+
+    if feature_encoders is not None:
+        with open(directory_path / name_of_the_feature_encoders_file, "wb") as f:
+            pickle.dump(feature_encoders, f)
 
 # Note: the following code is how you load the model that was saved by the previous function
 #
