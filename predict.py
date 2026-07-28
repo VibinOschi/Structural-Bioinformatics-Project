@@ -1,6 +1,14 @@
-# TODO: this file under the following specification
+import json
+import torch
 
-# Input: PDB file
+from src.utils.pdb.pdb_utils import get_extracted_features_from_directory_of_pdb
+
+def get_config():
+    with open("configuration.json", "r") as file:
+        configuration = json.load(file)
+
+    return configuration
+
 
 # Output: a tsv that return a table with the following information
 #
@@ -9,3 +17,8 @@
 # Feature columns (...)
 # Interaction (predictor result)
 # Score 
+if __name__ == '__main__':
+    config = get_config()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    pdb_extracted_features = get_extracted_features_from_directory_of_pdb(config)

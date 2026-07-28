@@ -6,3 +6,9 @@
 
 # All files inside the dataset folder
 dataset/*
+
+# Other folders that were created for testing
+src/utils/pdb/bin/*
+src/utils/pdb/dssp/*
+predict/input_pdb/*
+model/*

@@ -15,5 +15,21 @@
   "weight_decay": 1e-4,
 
   "number_of_epochs": 30,
-  "early_stopping_patience": 5
+  "early_stopping_patience": 5,
+
+
+
+  "pdb_directory": "predict/input_pdb/",
+  "ramachandran_file": "src/utils/pdb/ramachandran.dat",
+  "atchley_file": "src/utils/pdb/atchley.tsv",
+  "dssp_file": "mkdssp",
+  "distance_threshold": 3.5,
+  "sequence_separation": 3,
+  "rama_ss_ranges": [[-180, -180, 80, 60, "E", "blue"],
+                    [-180, 50, 80, 130, "E", "blue"],
+                    [-100, -180, 100, 60, "P", "green"],
+                    [-100, 50, 100, 130, "P", "green"],
+                    [-180, -120, 180, 170, "H", "red"],
+                    [0, -180, 180, 360, "L", "yellow"]],
+  "3di_model_dir": "src/utils/pdb/3di_model/"
 }
