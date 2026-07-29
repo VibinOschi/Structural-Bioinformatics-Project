@@ -92,10 +92,7 @@ class FeatureDataset(Dataset):
         self.residue_features_t = torch.tensor(t_features, dtype=torch.float32)
 
         if label_column is not None:
-            if fit:
-                encoded_labels = label_encoder.fit_transform(source_dataframe[label_column].astype(str))
-            else:
-                encoded_labels = label_encoder.transform(source_dataframe[label_column].astype(str))
+            encoded_labels = label_encoder.transform(source_dataframe[label_column].astype(str))
             self.labels = torch.tensor(encoded_labels, dtype=torch.long)
         else:
             self.labels = None

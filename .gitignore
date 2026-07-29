@@ -4,6 +4,9 @@
 # MacOS files
 .DS_Store
 
+# Python extra files
+*.pyc
+
 # All files inside the dataset folder
 dataset/*
 
