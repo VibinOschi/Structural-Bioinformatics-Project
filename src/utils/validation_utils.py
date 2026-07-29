@@ -4,6 +4,8 @@ import seaborn as sns
 
 from sklearn.metrics import classification_report, confusion_matrix
 
+from src.utils.training_utils import predict_labels
+
 def evaluate_model(model, validation_dataloader, training_history, label_encoder, device):
     model.eval()
     all_predicted, all_targets = [], []
@@ -11,8 +13,8 @@ def evaluate_model(model, validation_dataloader, training_history, label_encoder
     with torch.no_grad():
         for samples_batch_s, samples_batch_t, labels_batch in validation_dataloader:
             samples_batch_s, samples_batch_t, labels_batch = samples_batch_s.to(device), samples_batch_t.to(device), labels_batch.to(device)
-            outputs = model(samples_batch_s, samples_batch_t)
-            predicted = outputs.argmax(dim=1)
+            contact_logits, class_logits = model(samples_batch_s, samples_batch_t)
+            predicted = predict_labels(contact_logits, class_logits)
             all_predicted.append(predicted)
             all_targets.append(labels_batch)
 

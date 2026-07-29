@@ -19,3 +19,17 @@ def get_class_weights_from_dataframe(dataframe, label_column, label_encoder):
     class_weights = torch.reciprocal(counts_ordered)
     class_weights = class_weights / class_weights.sum() * len(label_encoder.classes_)
     return class_weights
+
+
+def get_stage_class_weights_from_dataframe(train_labels):
+    # Stage 1: Missing vs Contact, over ALL training samples
+    is_contact = (train_labels != 0).astype(int)
+    counts1 = np.bincount(is_contact, minlength=2)
+    alpha_stage1 = torch.tensor(counts1.sum() / (2 * counts1), dtype=torch.float32)
+
+    # Stage 2: among CONTACT samples only
+    contact_labels = train_labels[train_labels != 0] - 1  # shift to 0..6
+    counts2 = np.bincount(contact_labels, minlength=7)
+    alpha_stage2 = torch.tensor(counts2.sum() / (7 * counts2), dtype=torch.float32)
+
+    return alpha_stage1, alpha_stage2

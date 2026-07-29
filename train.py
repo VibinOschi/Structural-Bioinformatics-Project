@@ -6,8 +6,8 @@ from torch.utils.data import DataLoader
 from src.FeatureDataset import FeatureDataset
 from src.Predictor import Predictor
 from src.utils.input_preprocessing import get_label_encoder_from_dataframe, preprocess_data_files_from_path
-from src.utils.dataset_utils import stratified_split, get_class_weights_from_dataframe
-from src.utils.training_utils import FocalLoss, train_model, save_model_in_directory
+from src.utils.dataset_utils import stratified_split, get_class_weights_from_dataframe, get_stage_class_weights_from_dataframe
+from src.utils.training_utils import FocalLoss, train_model, save_model_in_directory, TwoStageFocalLoss
 from src.utils.validation_utils import evaluate_model
 
 
@@ -36,11 +36,17 @@ if __name__ == "__main__":
     train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=config['batch_size'], shuffle=False)
 
-    class_weights = get_class_weights_from_dataframe(source_df, config['label_column'], le)
+    # class_weights = get_class_weights_from_dataframe(source_df, config['label_column'], le)
+    class_weights_stage_1, class_weights_stage_2 = get_stage_class_weights_from_dataframe(dataset.labels[train_dataset.indices].numpy())
 
     model = Predictor(dropout=config['dropout'], shared_encoder=True).to(device)
-    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights.to(device))
-    criterion = FocalLoss(gamma=config['focal_gamma'], alpha=class_weights.to(device))
+    # criterion = FocalLoss(gamma=config['focal_gamma'], alpha=class_weights.to(device))
+    criterion = TwoStageFocalLoss(
+        gamma=config['focal_gamma'],
+        alpha_stage1=class_weights_stage_1,
+        alpha_stage2=class_weights_stage_2,
+        stage2_weight=1.0
+    )
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['number_of_epochs'])
 

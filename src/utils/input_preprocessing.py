@@ -1,12 +1,25 @@
 import pandas as pd
+import numpy as np
 import os
 
 from sklearn.preprocessing import LabelEncoder
 
 
+'''
 def get_label_encoder_from_dataframe(label_column):
     label_encoder = LabelEncoder()
     label_encoder.fit(label_column)
+    return label_encoder
+'''
+
+def get_label_encoder_from_dataframe(label_column):
+    label_encoder = LabelEncoder()
+    label_encoder.fit(label_column)
+    # Force "Missing" to be class index 0, keep the rest in whatever
+    # order LabelEncoder gave them (or set your own explicit order).
+    classes = list(label_encoder.classes_)
+    classes.remove('Missing')
+    label_encoder.classes_ = np.array(['Missing'] + classes)
     return label_encoder
 
 

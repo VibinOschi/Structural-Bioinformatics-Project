@@ -34,6 +34,39 @@ class FocalLoss(torch.nn.Module):
 
 
 
+class TwoStageFocalLoss(torch.nn.Module):
+    def __init__(self, gamma=2.0, alpha_stage1=None, alpha_stage2=None,
+                 stage2_weight=1.0, reduction='mean'):
+        super().__init__()
+        self.stage1_loss = FocalLoss(gamma=gamma, alpha=alpha_stage1, reduction=reduction)
+        self.stage2_loss = FocalLoss(gamma=gamma, alpha=alpha_stage2, reduction=reduction)
+        self.stage2_weight = stage2_weight
+
+    def forward(self, contact_logits, class_logits, labels):
+        # labels: 0 = Missing, 1..7 = contact classes
+        contact_target = (labels != 0).long()
+        loss1 = self.stage1_loss(contact_logits, contact_target)
+
+        contact_mask = labels != 0
+        if contact_mask.any():
+            class_target = labels[contact_mask] - 1  # shift to 0..6
+            loss2 = self.stage2_loss(class_logits[contact_mask], class_target)
+        else:
+            loss2 = contact_logits.new_tensor(0.)
+
+        return loss1 + self.stage2_weight * loss2
+
+
+
+@torch.no_grad()
+def predict_labels(contact_logits, class_logits):
+    contact_pred = contact_logits.argmax(dim=1)      # 0 = Missing, 1 = Contact
+    class_pred = class_logits.argmax(dim=1) + 1        # shift to 1..7
+    return torch.where(contact_pred == 0, torch.zeros_like(class_pred), class_pred)
+
+
+
+
 
 def train_model(model, training_dataloader, validation_dataloader, criterion, optimizer, scheduler, epochs, patience, device):
     training_history = {'train_loss': [], 'val_loss': [], 'train_acc': [], 'val_acc': []}
@@ -52,13 +85,13 @@ def train_model(model, training_dataloader, validation_dataloader, criterion, op
             samples_batch_s, samples_batch_t, labels_batch = samples_batch_s.to(device), samples_batch_t.to(device), labels_batch.to(device)
 
             optimizer.zero_grad()
-            outputs = model(samples_batch_s, samples_batch_t)
-            loss = criterion(outputs, labels_batch)
+            contact_logits, class_logits = model(samples_batch_s, samples_batch_t)
+            loss = criterion(contact_logits, class_logits, labels_batch)
             loss.backward()
             optimizer.step()
 
             train_loss += loss.item() * len(labels_batch)
-            predicted = outputs.argmax(dim=1)
+            predicted = predict_labels(contact_logits, class_logits)
             train_correct += (predicted == labels_batch).sum().item()
             train_total += len(labels_batch)
 
@@ -73,11 +106,11 @@ def train_model(model, training_dataloader, validation_dataloader, criterion, op
             for samples_batch_s, samples_batch_t, labels_batch in validation_dataloader:
                 samples_batch_s, samples_batch_t, labels_batch = samples_batch_s.to(device), samples_batch_t.to(device), labels_batch.to(device)
 
-                outputs = model(samples_batch_s, samples_batch_t)
-                loss = criterion(outputs, labels_batch)
+                contact_logits, class_logits = model(samples_batch_s, samples_batch_t)
+                loss = criterion(contact_logits, class_logits, labels_batch)
 
                 val_loss += loss.item() * len(labels_batch)
-                predicted = outputs.argmax(dim=1)
+                predicted = predict_labels(contact_logits, class_logits)
                 val_correct += (predicted == labels_batch).sum().item()
                 val_total += len(labels_batch)
 
