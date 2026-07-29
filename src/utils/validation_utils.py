@@ -36,9 +36,9 @@ def evaluate_model(model, validation_dataloader, training_history, label_encoder
     ax[0].set_xlabel('Epoch')
     ax[0].legend()
 
-    ax[1].plot(training_history['train_acc'], label='Train')
-    ax[1].plot(training_history['val_acc'], label='Val')
-    ax[1].set_title('Train & Val Accuracy')
+    ax[1].plot(training_history['train_f1'], label='Train')
+    ax[1].plot(training_history['val_f1'], label='Val')
+    ax[1].set_title('Train & F1 Score')
     ax[1].set_xlabel('Epoch')
     ax[1].legend()
 
@@ -54,3 +54,5 @@ def evaluate_model(model, validation_dataloader, training_history, label_encoder
     ax.set_title("Confusion Matrix")
     plt.tight_layout()
     plt.show()
+
+    # TODO: the various validation metrics that I'm missing
