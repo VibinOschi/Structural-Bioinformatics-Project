@@ -41,9 +41,9 @@ if __name__ == "__main__":
     model = Predictor(dropout=config['dropout'], shared_encoder=False).to(device)
     criterion = TwoStageFocalLoss(
         gamma=config['focal_gamma'],
-        alpha_stage1=class_weights_stage_1.to(device),
-        alpha_stage2=class_weights_stage_2.to(device),
-        stage2_weight=config['focal_alpha_stage_2']
+        alpha_stage_1=class_weights_stage_1.to(device),
+        alpha_stage_2=class_weights_stage_2.to(device),
+        stage_2_weight=config['focal_alpha_stage_2']
     )
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['number_of_epochs'])
@@ -67,5 +67,6 @@ if __name__ == "__main__":
         validation_dataloader=val_dataloader,
         training_history=train_history,
         label_encoder=le,
-        device=device
+        device=device,
+        output_dir=config['train_eval_output_dir']
     )

@@ -140,8 +140,8 @@ def train_model(model, training_dataloader, validation_dataloader, criterion, op
         training_history['val_f1'].append(avg_val_f1)
 
         print(f"Epoch {epoch:3d}/{epochs} "
-              f"| Train Loss: {avg_train_loss:.4f} ~  F1 Score: {avg_train_f1:.4f} "
-              f"| Val Loss: {avg_val_loss:.4f} ~  F1 Score: {avg_val_f1:.4f}")
+              f"| Train Loss: {avg_train_loss:.4f} - F1 Score: {avg_train_f1:.4f} "
+              f"| Val Loss: {avg_val_loss:.4f} - F1 Score: {avg_val_f1:.4f}")
 
         # Early Stopping Check
         if early_stopping_counter >= patience:
