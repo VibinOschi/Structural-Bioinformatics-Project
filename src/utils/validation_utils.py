@@ -41,6 +41,8 @@ def evaluate_model(model, validation_dataloader, training_history, label_encoder
     print("=" * 60)
     print(classification_report(all_targets, all_predicted, target_names=class_names))
 
+    os.makedirs(output_dir, exist_ok=True)
+
     # Graphs
     fig, ax = plt.subplots(1, 2, figsize=(12, 4))
     ax[0].plot(training_history['train_loss'], label='Train')
