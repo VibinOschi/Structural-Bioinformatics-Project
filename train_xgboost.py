@@ -1,4 +1,3 @@
-# train_xgboost.py
 import json
 import numpy as np
 
@@ -54,26 +53,21 @@ def build_feature_matrix(source_dataframe, feature_columns, feature_encoders=Non
 if __name__ == "__main__":
     config = get_config()
 
-    source_df = preprocess_data_files_from_path(
-        config['dataset_path'], config['feature_columns'], augment_duplicate=False
-    )
+    source_df = preprocess_data_files_from_path(config['dataset_path'], config['feature_columns'])
     le = get_label_encoder_from_dataframe(source_df[config['label_column']])
-    y = le.transform(source_df[config['label_column']].astype(str))
+    labels = le.transform(source_df[config['label_column']].astype(str))
 
-    train_idx, val_idx = train_test_split(
-        np.arange(len(source_df)), test_size=config['validation_split'],
-        stratify=y, random_state=config['rand_seed']
-    )
+    train_idx, val_idx = train_test_split(np.arange(len(source_df)), test_size=config['validation_split'], stratify=labels, random_state=config['rand_seed'])
     train_df, val_df = source_df.iloc[train_idx], source_df.iloc[val_idx]
-    y_train, y_val = y[train_idx], y[val_idx]
+    labels_train, labels_val = labels[train_idx], labels[val_idx]
 
     X_train, feature_encoders = build_feature_matrix(train_df, config['feature_columns'], fit=True)
     X_val, _ = build_feature_matrix(val_df, config['feature_columns'], feature_encoders=feature_encoders, fit=False)
 
     # Per-class sample weights, same inverse-frequency spirit as get_class_weights_from_dataframe
-    class_counts = np.bincount(y_train, minlength=len(le.classes_))
+    class_counts = np.bincount(labels_train, minlength=len(le.classes_))
     class_weight_map = class_counts.sum() / (len(le.classes_) * class_counts)
-    sample_weight = class_weight_map[y_train]
+    sample_weight = class_weight_map[labels_train]
 
     model = XGBClassifier(
         n_estimators=500,
@@ -83,14 +77,15 @@ if __name__ == "__main__":
         num_class=len(le.classes_),
         eval_metric='mlogloss',
         early_stopping_rounds=20,
+
         tree_method="hist",
         device="cuda",
     )
 
     model.fit(
-        X_train, y_train,
+        X_train, labels_train,
         sample_weight=sample_weight,
-        eval_set=[(X_val, y_val)],
+        eval_set=[(X_val, labels_val)],
         verbose=True,
     )
 
@@ -98,5 +93,5 @@ if __name__ == "__main__":
 
     print("Classification Report")
     print("=" * 60)
-    print(classification_report(y_val, y_pred, target_names=list(le.classes_)))
-    print(confusion_matrix(y_val, y_pred))
+    print(classification_report(labels_val, y_pred, target_names=list(le.classes_)))
+    print(confusion_matrix(labels_val, y_pred))
