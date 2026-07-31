@@ -14,4 +14,5 @@ dataset/*
 src/utils/pdb/bin/*
 src/utils/pdb/dssp/*
 predict/input_pdb/*
+predict/output/*
 model/*

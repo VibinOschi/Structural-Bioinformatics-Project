@@ -23,6 +23,7 @@
   "----------------------": "----------------------",
 
   "pdb_directory": "predict/input_pdb/",
+  "prediction_output_directory": "predict/output/",
   "ramachandran_file": "src/utils/pdb/ramachandran.dat",
   "atchley_file": "src/utils/pdb/atchley.tsv",
   "dssp_file": "mkdssp",

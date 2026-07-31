@@ -79,9 +79,9 @@ if __name__ == "__main__":
         num_class=len(le.classes_),
         eval_metric='mlogloss',
         early_stopping_rounds=20,
-        n_jobs=4,  # To use only in the case of CPU training (commenting the following two lines)
-        # tree_method="hist",
-        # device="cuda",
+        # n_jobs=4,  # To use only in the case of CPU training (commenting the following two lines)
+        tree_method="hist",
+        device="cuda",
     )
 
     model.fit(
@@ -98,8 +98,7 @@ if __name__ == "__main__":
     joblib.dump(
         {
             "feature_encoders": feature_enc,
-            "label_encoder": le,
-            "feature_columns": config['feature_columns'],
+            "label_encoder": le
         },
         os.path.join(output_dir, "preprocessing_components.joblib"),
     )
@@ -129,7 +128,7 @@ if __name__ == "__main__":
     plt.savefig(os.path.join(output_dir_eval, "confusion_matrix.png"), dpi=300, bbox_inches="tight")
     plt.show()
 
-    # Matthews correlation coefficient
+    # Matthew's correlation coefficient
     mcc = matthews_corrcoef(labels_val, y_pred)
     print(f"Matthew's Correlation Coefficient: {mcc:.4f}")
 
@@ -156,23 +155,3 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir_eval, "roc_curves.png"), dpi=300, bbox_inches="tight")
     plt.show()
-
-
-
-
-    # --- Reference: how to load everything back for inference ---
-    #
-    # from xgboost import XGBClassifier
-    # import joblib
-    #
-    # inference_model = XGBClassifier()
-    # inference_model.load_model("xgb_model.json")
-    #
-    # artifacts = joblib.load("preprocessing_artifacts.joblib")
-    # feature_encoders = artifacts["feature_encoders"]
-    # le = artifacts["label_encoder"]
-    # feature_columns = artifacts["feature_columns"]
-    #
-    # X_new, _ = build_feature_matrix(new_df, feature_columns, feature_encoders=feature_encoders, fit=False)
-    # preds = inference_model.predict(X_new)
-    # pred_labels = le.inverse_transform(preds)
