@@ -70,7 +70,7 @@ def evaluate_model(model, validation_dataloader, training_history, label_encoder
     plt.savefig(os.path.join(output_dir, "confusion_matrix.png"), dpi=300, bbox_inches="tight")
     plt.show()
 
-    # Matthews correlation coefficient
+    # Matthew's correlation coefficient
     mcc = matthews_corrcoef(all_targets, all_predicted)
     print(f"Matthew's Correlation Coefficient: {mcc:.4f}")
 
